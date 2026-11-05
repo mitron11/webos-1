@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#e8edf2">
+  <title>nubeOS</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="desktop">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">☁</span> NUBE OS</div>
+      <div class="system-info" id="top-date"></div>
+    </header>
+
+    <div class="home-area">
+      <section class="welcome">
+        <div class="eyebrow">Tu espacio personal</div>
+        <h1>Hola, bienvenida.</h1>
+        <p>Un escritorio tranquilo para tus cosas de cada día.</p>
+        <nav class="app-grid" aria-label="Aplicaciones">
+          <button class="app-shortcut" data-open="notes"><span class="app-icon">📝</span><span class="app-label">Bloc de notas</span></button>
+          <button class="app-shortcut" data-open="browser"><span class="app-icon">🌐</span><span class="app-label">Navegador</span></button>
+          <button class="app-shortcut" data-open="calculator"><span class="app-icon">🔢</span><span class="app-label">Calculadora</span></button>
+          <button class="app-shortcut" data-open="calendar"><span class="app-icon">🗓️</span><span class="app-label">Calendario</span></button>
+          <button class="app-shortcut" data-open="tasks"><span class="app-icon">✅</span><span class="app-label">Tareas</span></button>
+          <button class="app-shortcut" data-open="weather"><span class="app-icon">🌤️</span><span class="app-label">El tiempo</span></button>
+          <button class="app-shortcut" data-open="settings"><span class="app-icon">⚙️</span><span class="app-label">Ajustes</span></button>
+        </nav>
+      </section>
+
+      <aside class="weather-home" aria-label="Tiempo actual">
+        <div class="weather-home-heading">
+          <div><span class="eyebrow">Pronóstico</span><h2 id="home-weather-city">Madrid</h2></div>
+          <button class="control" data-open="weather" aria-label="Abrir el tiempo" title="Abrir el tiempo">↗</button>
+        </div>
+        <iframe class="weather-home-frame" id="weather-home-frame" title="Pronóstico de Meteoblue"></iframe>
+        <a class="weather-source" id="weather-home-link" target="_blank" rel="noopener noreferrer">Ver en Meteoblue ↗</a>
+      </aside>
+    </div>
+
+    <section class="window" id="notes" aria-label="Bloc de notas">
+      <header class="window-header"><div class="window-title">📝 Bloc de notas</div><div class="window-controls"><button class="control" data-minimize title="Minimizar">−</button><button class="control" data-close title="Cerrar">×</button></div></header>
+      <div class="window-body"><textarea class="notes-area" id="notes-content" placeholder="Escribe aquí tus ideas..."></textarea></div>
+    </section>
+
+    <section class="window" id="browser" aria-label="Navegador">
+      <header class="window-header"><div class="window-title">🌐 Navegador</div><div class="window-controls"><button class="control" data-minimize title="Minimizar">−</button><button class="control" data-close title="Cerrar">×</button></div></header>
+      <div class="window-body browser-body">
+        <form class="browser-bar" id="search-form"><input id="search-input" aria-label="Buscar en Google" placeholder="Busca en Google o escribe una dirección"><button class="soft-button" type="submit">Ir ↗</button></form>
+        <div class="browser-view" id="browser-view"><div class="browser-message"><div class="big-icon">🔎</div><p>Busca en Google o escribe una dirección arriba.</p></div></div>
+      </div>
+    </section>
+
+    <section class="window" id="calculator" aria-label="Calculadora">
+      <header class="window-header"><div class="window-title">🔢 Calculadora</div><div class="window-controls"><button class="control" data-minimize title="Minimizar">−</button><button class="control" data-close title="Cerrar">×</button></div></header>
+      <div class="window-body"><div class="calculator"><output class="calc-display" id="calc-display">0</output><div class="calc-keys" id="calc-keys"></div></div></div>
+    </section>
+
+    <section class="window" id="calendar" aria-label="Calendario">
+      <header class="window-header"><div class="window-title">🗓️ Calendario</div><div class="window-controls"><button class="control" data-minimize title="Minimizar">−</button><button class="control" data-close title="Cerrar">×</button></div></header>
+      <div class="window-body calendar-body">
+        <div class="calendar-heading"><button class="control" id="calendar-prev" aria-label="Mes anterior">‹</button><h2 id="calendar-title"></h2><button class="control" id="calendar-next" aria-label="Mes siguiente">›</button></div>
+        <div class="calendar-grid" id="calendar-grid" aria-label="Días del mes"></div>
+      </div>
+    </section>
+
+    <section class="window" id="tasks" aria-label="Lista de tareas">
+      <header class="window-header"><div class="window-title">✅ Tareas</div><div class="window-controls"><button class="control" data-minimize title="Minimizar">−</button><button class="control" data-close title="Cerrar">×</button></div></header>
+      <div class="window-body tasks-body">
+        <form class="task-form" id="task-form"><input id="task-input" aria-label="Nueva tarea" placeholder="Añade una tarea"><button class="soft-button" type="submit">Añadir +</button></form>
+        <ul class="task-list" id="task-list"></ul>
+      </div>
+    </section>
+
+    <section class="window" id="weather" aria-label="El tiempo">
+      <header class="window-header"><div class="window-title">🌤️ El tiempo · Meteoblue</div><div class="window-controls"><button class="control" data-minimize title="Minimizar">−</button><button class="control" data-close title="Cerrar">×</button></div></header>
+      <div class="window-body weather-app-body">
+        <div class="weather-app-heading"><h2 id="app-weather-city">Madrid</h2><label>Ciudad <select id="weather-city" aria-label="Seleccionar ciudad"><option value="madrid_spain_3117735">Madrid</option><option value="barcelona_spain_3128760">Barcelona</option><option value="valencia_spain_2509954">Valencia</option><option value="seville_spain_2510911">Sevilla</option><option value="bilbao_spain_3128026">Bilbao</option><option value="granada_spain_2517117">Granada</option><option value="malaga_spain_2514256">Málaga</option><option value="zaragoza_spain_3104324">Zaragoza</option></select></label></div>
+        <iframe class="weather-app-frame" id="weather-app-frame" title="Pronóstico detallado de Meteoblue"></iframe>
+        <a class="weather-source" id="weather-app-link" target="_blank" rel="noopener noreferrer">Abrir pronóstico en Meteoblue ↗</a>
+      </div>
+    </section>
+
+    <section class="window" id="settings" aria-label="Ajustes del escritorio">
+      <header class="window-header"><div class="window-title">⚙️ Ajustes</div><div class="window-controls"><button class="control" data-minimize title="Minimizar">−</button><button class="control" data-close title="Cerrar">×</button></div></header>
+      <div class="window-body settings-body">
+        <section class="setting-row"><div><h2>Tema oscuro</h2><p>Cambia entre tema claro y oscuro.</p></div><label class="switch"><input id="dark-theme" type="checkbox"><span class="switch-track"></span><span class="sr-only">Activar tema oscuro</span></label></section>
+        <section class="setting-row setting-column"><div><h2>Estilo de ventanas</h2><p>Elige el acabado del escritorio.</p></div><div class="style-options" role="group" aria-label="Estilo de ventanas"><button class="style-option" data-style-choice="neo">Neomórfico</button><button class="style-option" data-style-choice="glass">Cristal</button><button class="style-option" data-style-choice="flat">Plano</button></div></section>
+        <section class="setting-row setting-column"><div class="range-heading"><div><h2>Tamaño de las ventanas</h2><p>Ajusta el tamaño inicial de las apps.</p></div><output id="window-size-value">100%</output></div><input id="window-size" class="size-slider" type="range" min="75" max="120" step="5" value="100" aria-label="Tamaño de las ventanas"></section>
+      </div>
+    </section>
+
+    <footer class="dock-wrap"><nav class="dock" aria-label="Barra de aplicaciones">
+      <button class="dock-button" data-open="notes" title="Bloc de notas">📝</button>
+      <button class="dock-button" data-open="browser" title="Navegador">🌐</button>
+      <button class="dock-button" data-open="calculator" title="Calculadora">🔢</button>
+      <button class="dock-button" data-open="weather" title="El tiempo">🌤️</button>
+      <button class="dock-button" data-open="settings" title="Ajustes">⚙️</button>
+      <span class="dock-divider"></span><div class="dock-clock" id="dock-clock"></div>
+    </nav></footer>
+  </main>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
