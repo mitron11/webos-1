@@ -1,5 +1,8 @@
 const windows = [...document.querySelectorAll('.window')];
 const notes = document.querySelector('#notes-content');
+let highestZIndex = 10;
+
+// Configuración inicial y persistencia
 const settings = {
   theme: 'light',
   style: 'neo',
@@ -26,28 +29,83 @@ const cityNames = {
   zaragoza_spain_3104324: 'Zaragoza'
 };
 
+// Bloc de Notas con Guardado Automático
 try { notes.value = localStorage.getItem('nubeos-notes') || ''; } catch {}
 notes.addEventListener('input', () => {
   try { localStorage.setItem('nubeos-notes', notes.value); } catch {}
 });
 
+// Sistema de Ventanas (Abrir, Traer al frente y Enfocar)
+function bringToFront(win) {
+  highestZIndex += 1;
+  win.style.zIndex = highestZIndex;
+}
+
 function openApp(id) {
-  windows.forEach((window) => window.classList.toggle('open', window.id === id));
-  document.querySelectorAll('.dock-button').forEach((button) => button.classList.toggle('active', button.dataset.open === id));
+  const win = document.getElementById(id);
+  if (!win) return;
+  
+  win.classList.add('open');
+  bringToFront(win);
+  
+  document.querySelectorAll('.dock-button').forEach((button) => {
+    if (button.dataset.open === id) button.classList.add('active');
+  });
+
   if (id === 'browser') document.querySelector('#search-input').focus();
   if (id === 'tasks') document.querySelector('#task-input').focus();
 }
 
-document.querySelectorAll('[data-open]').forEach((button) => {
-  button.addEventListener('click', () => openApp(button.dataset.open));
-});
-document.querySelectorAll('[data-close], [data-minimize]').forEach((button) => {
-  button.addEventListener('click', () => {
-    button.closest('.window').classList.remove('open');
-    document.querySelectorAll('.dock-button').forEach((dockButton) => dockButton.classList.remove('active'));
+// Hacer ventanas arrastrables y focalizables
+windows.forEach((win) => {
+  win.addEventListener('mousedown', () => bringToFront(win));
+  
+  const header = win.querySelector('.window-header');
+  if (!header) return;
+
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  header.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.window-controls')) return;
+    isDragging = true;
+    
+    // Convertir posiciones fijas para permitir arrastre fluido
+    const rect = win.getBoundingClientRect();
+    win.style.transform = 'none';
+    win.style.left = `${rect.left}px`;
+    win.style.top = `${rect.top}px`;
+
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    win.style.left = `${e.clientX - offsetX}px`;
+    win.style.top = `${e.clientY - offsetY}px`;
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
   });
 });
 
+document.querySelectorAll('[data-open]').forEach((button) => {
+  button.addEventListener('click', () => openApp(button.dataset.open));
+});
+
+document.querySelectorAll('[data-close], [data-minimize]').forEach((button) => {
+  button.addEventListener('click', (e) => {
+    const win = button.closest('.window');
+    win.classList.remove('open');
+    const dockBtn = document.querySelector(`.dock-button[data-open="${win.id}"]`);
+    if (dockBtn) dockBtn.classList.remove('active');
+  });
+});
+
+// Navegador Web
 document.querySelector('#search-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const input = document.querySelector('#search-input').value.trim();
@@ -57,18 +115,20 @@ document.querySelector('#search-form').addEventListener('submit', (event) => {
     ? (input.startsWith('http') ? input : `https://${input}`)
     : `https://www.google.com/search?igu=1&q=${encodeURIComponent(input)}`;
   const view = document.querySelector('#browser-view');
+  
   if (isAddress) {
     view.innerHTML = `<div class="browser-message"><div class="big-icon">🌐</div><p>Abriendo <strong>${escapeHtml(input)}</strong> en una pestaña nueva.</p><a href="${escapeHtml(target)}" target="_blank" rel="noopener noreferrer">Ir al sitio ↗</a></div>`;
+    window.open(target, '_blank', 'noopener,noreferrer');
   } else {
-    view.innerHTML = `<iframe title="Resultados de Google" src="${target}" style="width:100%;height:100%;min-height:180px;border:0;border-radius:8px;background:#fff"></iframe><a href="${target.replaceAll('&', '&amp;')}" target="_blank" rel="noopener noreferrer">Abrir Google en una pestaña ↗</a>`;
+    view.innerHTML = `<iframe title="Resultados de Google" src="${target}" style="width:100%;height:100%;min-height:180px;border:0;border-radius:8px;background:#fff"></iframe>`;
   }
-  if (isAddress) window.open(target, '_blank', 'noopener,noreferrer');
 });
 
 function escapeHtml(value) {
   return value.replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 }
 
+// Calculadora
 const display = document.querySelector('#calc-display');
 const keys = document.querySelector('#calc-keys');
 const keyValues = ['C', '±', '%', '÷', '7', '8', '9', '×', '4', '5', '6', '−', '1', '2', '3', '+', '0', '.', '⌫', '='];
@@ -113,14 +173,16 @@ function operate(left, right, operator) {
   return right === 0 ? 0 : left / right;
 }
 
+// Reloj y Fecha Superior
 function updateClock() {
   const now = new Date();
   document.querySelector('#dock-clock').innerHTML = `${now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}<br>${now.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`;
   document.querySelector('#top-date').textContent = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 updateClock();
-setInterval(updateClock, 30000);
+setInterval(updateClock, 1000);
 
+// Personalización y Ajustes
 const themeToggle = document.querySelector('#dark-theme');
 const styleButtons = [...document.querySelectorAll('[data-style-choice]')];
 const windowSize = document.querySelector('#window-size');
@@ -193,6 +255,7 @@ function updateWeather() {
 
 applyAppearance();
 
+// Lista de Tareas
 const taskList = document.querySelector('#task-list');
 let tasks = [];
 try { tasks = JSON.parse(localStorage.getItem('nubeos-tasks') || '[]'); } catch {}
@@ -254,6 +317,7 @@ document.querySelector('#task-form').addEventListener('submit', (event) => {
 });
 renderTasks();
 
+// Calendario
 const calendarDate = new Date();
 const calendarGrid = document.querySelector('#calendar-grid');
 
